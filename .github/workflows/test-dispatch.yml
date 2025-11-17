@@ -1,0 +1,56 @@
+name: Test Workflow Dispatch
+
+# Kích hoạt thủ công qua UI, hoặc tự động khi push (để test)
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Môi trường deploy (staging/production)'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+  push:
+    branches: [main]
+
+jobs:
+  test-dispatch:
+    name: Run Test with Inputs
+    runs-on: ubuntu-latest
+
+    steps:
+      # Bước 1: Lấy code repo (bắt buộc)
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Bước 2: Hiển thị input từ workflow_dispatch
+      - name: Display Input Values
+        run: |
+          echo "Environment selected: ${{ github.event.inputs.environment || 'staging' }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Actor: ${{ github.actor }}"
+
+      # Bước 3: Mô phỏng deploy dựa trên input
+      - name: Simulate Deploy
+        run: |
+          ENV="${{ github.event.inputs.environment || 'staging' }}"
+          if [ "$ENV" = "production" ]; then
+            echo "🚀 Deploying to PRODUCTION – High risk!"
+          else
+            echo "🔄 Deploying to STAGING – Safe mode!"
+          fi
+
+      # Bước 4: Kiểm tra và output kết quả
+      - name: Verify and Output
+        id: verify
+        run: |
+          ENV="${{ github.event.inputs.environment || 'staging' }}"
+          echo "deployment_env=$ENV" >> $GITHUB_OUTPUT
+          echo "Verification: Workflow dispatched successfully!"
+
+      # Bước 5: Hiển thị output (tùy chọn)
+      - name: Show Final Output
+        run: |
+          echo "Final deployment environment: ${{ steps.verify.outputs.deployment_env }}"

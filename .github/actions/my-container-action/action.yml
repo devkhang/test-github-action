@@ -1,0 +1,21 @@
+name: "My Container Action"
+description: "Greet with custom message in Docker container using Python entrypoint"
+author: "Your Name"
+
+inputs:
+  message:
+    description: "Message to print (positional arg $1)"
+    required: false
+    default: "Hello World!"
+
+outputs:
+  greeting:
+    description: "Processed greeting message"
+  timestamp:
+    description: "Execution timestamp"
+
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.message }}

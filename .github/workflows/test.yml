@@ -1,0 +1,42 @@
+name: Test Container Action
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test-action:
+    name: Run and Verify Container Action
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Execute Container Action
+        id: greet
+        uses: ./.github/actions/my-container-action
+        with:
+          message: "Xin chào từ Việt Nam! 🇻🇳"
+
+      - name: Display Action Output
+        run: |
+          echo "Greeting: ${{ steps.greet.outputs.greeting }}"
+          echo "Timestamp: ${{ steps.greet.outputs.timestamp }}"
+          echo "Container Action executed successfully! "
+
+      - name: Verify Output
+        run: |
+          if [[ "${{ steps.greet.outputs.greeting }}" == *"Xin chào từ Việt Nam"* ]]; then
+            echo "Output verification passed! "
+          else
+            echo "Output verification failed!" && exit 1
+          fi

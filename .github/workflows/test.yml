@@ -35,7 +35,7 @@ jobs:
 
       - name: Verify Output
         run: |
-          if [[ "${{ steps.greet.outputs.greeting }}" == *"Xin chào từ Việt Nam"* ]]; then
+          if [[ "${{ steps.greet.outputs.greeting }}" == *"Hello World!"* ]]; then
             echo "Output verification passed! "
           else
             echo "Output verification failed!" && exit 1

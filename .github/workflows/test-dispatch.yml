@@ -1,6 +1,6 @@
-name: Test Workflow Dispatch
+name: Test Workflow Dispatch with UI Input
 
-# Kích hoạt thủ công qua UI, hoặc tự động khi push (để test)
+# Kích hoạt thủ công qua UI (workflow_dispatch) hoặc tự động khi push
 on:
   workflow_dispatch:
     inputs:
@@ -12,12 +12,17 @@ on:
         options:
           - staging
           - production
+      message:
+        description: 'Tin nhắn tùy chỉnh (tùy chọn)'
+        required: false
+        type: string
+        default: 'Hello from VN!'
   push:
     branches: [main]
 
 jobs:
   test-dispatch:
-    name: Run Test with Inputs
+    name: Run Test with UI Inputs
     runs-on: ubuntu-latest
 
     steps:
@@ -25,32 +30,33 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Bước 2: Hiển thị input từ workflow_dispatch
-      - name: Display Input Values
+      # Bước 2: Hiển thị inputs từ UI
+      - name: Display UI Inputs
         run: |
-          echo "Environment selected: ${{ github.event.inputs.environment || 'staging' }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Actor: ${{ github.actor }}"
+          echo "Environment: ${{ github.event.inputs.environment || 'staging' }}"
+          echo "Message: ${{ github.event.inputs.message || 'Hello from VN!' }}"
 
       # Bước 3: Mô phỏng deploy dựa trên input
       - name: Simulate Deploy
         run: |
           ENV="${{ github.event.inputs.environment || 'staging' }}"
+          MSG="${{ github.event.inputs.message || 'Hello from VN!' }}"
           if [ "$ENV" = "production" ]; then
-            echo "🚀 Deploying to PRODUCTION – High risk!"
+            echo "🚀 Deploying to PRODUCTION with message: $MSG"
           else
-            echo "🔄 Deploying to STAGING – Safe mode!"
+            echo "🔄 Deploying to STAGING with message: $MSG"
           fi
 
-      # Bước 4: Kiểm tra và output kết quả
-      - name: Verify and Output
-        id: verify
+      # Bước 4: Set output để sử dụng sau
+      - name: Set Final Output
+        id: output
         run: |
           ENV="${{ github.event.inputs.environment || 'staging' }}"
           echo "deployment_env=$ENV" >> $GITHUB_OUTPUT
-          echo "Verification: Workflow dispatched successfully!"
+          echo "custom_message=${{ github.event.inputs.message || 'Hello from VN!' }}" >> $GITHUB_OUTPUT
 
-      # Bước 5: Hiển thị output (tùy chọn)
-      - name: Show Final Output
+      # Bước 5: Hiển thị output cuối
+      - name: Show Final Results
         run: |
-          echo "Final deployment environment: ${{ steps.verify.outputs.deployment_env }}"
+          echo "Deployment Environment: ${{ steps.output.outputs.deployment_env }}"
+          echo "Custom Message: ${{ steps.output.outputs.custom_message }}"

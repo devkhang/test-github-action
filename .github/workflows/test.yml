@@ -24,8 +24,6 @@ jobs:
       - name: Execute Container Action
         id: greet
         uses: ./.github/actions/my-container-action
-        with:
-          message: 
 
       - name: Display Action Output
         run: |

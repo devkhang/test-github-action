@@ -25,7 +25,7 @@ jobs:
         id: greet
         uses: ./.github/actions/my-container-action
         with:
-          message: "Xin chào từ Việt Nam! 🇻🇳"
+          message: 
 
       - name: Display Action Output
         run: |
